@@ -1,0 +1,970 @@
+State 1 conflicts: 4 shift/reduce
+State 2 conflicts: 4 shift/reduce
+State 3 conflicts: 4 shift/reduce
+State 4 conflicts: 4 shift/reduce
+State 7 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 9 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 11 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 12 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 14 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 15 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 18 conflicts: 4 shift/reduce
+State 19 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 20 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 21 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 22 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 23 conflicts: 4 shift/reduce, 4 reduce/reduce
+State 24 conflicts: 4 shift/reduce, 4 reduce/reduce
+
+
+Grammar
+
+    0 $accept: S_ $end
+
+    1 S_: S
+
+    2 S: S S
+    3  | 'a'
+    4  | 'c'
+    5  | 'g'
+    6  | 'u'
+    7  | 'a' 'u'
+    8  | 'u' 'a'
+    9  | 'c' 'g'
+   10  | 'g' 'c'
+   11  | 'g' 'u'
+   12  | 'u' 'g'
+   13  | 'a' S 'u'
+   14  | 'u' S 'a'
+   15  | 'c' S 'g'
+   16  | 'g' S 'c'
+   17  | 'g' S 'u'
+   18  | 'u' S 'g'
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'a' (97) 3 7 8 13 14
+'c' (99) 4 9 10 15 16
+'g' (103) 5 9 10 11 12 15 16 17 18
+'u' (117) 6 7 8 11 12 13 14 17 18
+error (256)
+
+
+Nonterminals, with rules where they appear
+
+$accept (7)
+    on left: 0
+S_ (8)
+    on left: 1, on right: 0
+S (9)
+    on left: 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18, on right:
+    1 2 13 14 15 16 17 18
+
+
+state 0
+
+    0 $accept: . S_ $end
+    1 S_: . S
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 4
+
+    S_  go to state 5
+    S   go to state 6
+
+
+state 1
+
+    2 S: . S S
+    3  | . 'a'
+    3  | 'a' .  [$end, 'a', 'c', 'g', 'u']
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    7  | 'a' . 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   13  | 'a' . S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 7
+
+    'a'       [reduce using rule 3 (S)]
+    'c'       [reduce using rule 3 (S)]
+    'g'       [reduce using rule 3 (S)]
+    'u'       [reduce using rule 3 (S)]
+    $default  reduce using rule 3 (S)
+
+    S  go to state 8
+
+
+state 2
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    4  | 'c' .  [$end, 'a', 'c', 'g', 'u']
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+    9  | 'c' . 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   15  | 'c' . S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 9
+    'u'  shift, and go to state 4
+
+    'a'       [reduce using rule 4 (S)]
+    'c'       [reduce using rule 4 (S)]
+    'g'       [reduce using rule 4 (S)]
+    'u'       [reduce using rule 4 (S)]
+    $default  reduce using rule 4 (S)
+
+    S  go to state 10
+
+
+state 3
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    5  | 'g' .  [$end, 'a', 'c', 'g', 'u']
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   10  | 'g' . 'c'
+   11  | . 'g' 'u'
+   11  | 'g' . 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   16  | 'g' . S 'c'
+   17  | . 'g' S 'u'
+   17  | 'g' . S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 11
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 12
+
+    'a'       [reduce using rule 5 (S)]
+    'c'       [reduce using rule 5 (S)]
+    'g'       [reduce using rule 5 (S)]
+    'u'       [reduce using rule 5 (S)]
+    $default  reduce using rule 5 (S)
+
+    S  go to state 13
+
+
+state 4
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    6  | 'u' .  [$end, 'a', 'c', 'g', 'u']
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    8  | 'u' . 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   12  | 'u' . 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   14  | 'u' . S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+   18  | 'u' . S 'g'
+
+    'a'  shift, and go to state 14
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 15
+    'u'  shift, and go to state 4
+
+    'a'       [reduce using rule 6 (S)]
+    'c'       [reduce using rule 6 (S)]
+    'g'       [reduce using rule 6 (S)]
+    'u'       [reduce using rule 6 (S)]
+    $default  reduce using rule 6 (S)
+
+    S  go to state 16
+
+
+state 5
+
+    0 $accept: S_ . $end
+
+    $end  shift, and go to state 17
+
+
+state 6
+
+    1 S_: S .  [$end]
+    2 S: . S S
+    2  | S . S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 4
+
+    $default  reduce using rule 1 (S_)
+
+    S  go to state 18
+
+
+state 7
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    6  | 'u' .  ['a', 'c', 'g', 'u']
+    7  | . 'a' 'u'
+    7  | 'a' 'u' .  [$end, 'a', 'c', 'g', 'u']
+    8  | . 'u' 'a'
+    8  | 'u' . 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   12  | 'u' . 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   14  | 'u' . S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+   18  | 'u' . S 'g'
+
+    'a'  shift, and go to state 14
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 15
+    'u'  shift, and go to state 4
+
+    'a'       [reduce using rule 6 (S)]
+    'a'       [reduce using rule 7 (S)]
+    'c'       [reduce using rule 6 (S)]
+    'c'       [reduce using rule 7 (S)]
+    'g'       [reduce using rule 6 (S)]
+    'g'       [reduce using rule 7 (S)]
+    'u'       [reduce using rule 6 (S)]
+    'u'       [reduce using rule 7 (S)]
+    $default  reduce using rule 7 (S)
+
+    S  go to state 16
+
+
+state 8
+
+    2 S: . S S
+    2  | S . S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   13  | 'a' S . 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 19
+
+    S  go to state 18
+
+
+state 9
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    5  | 'g' .  ['a', 'c', 'g', 'u']
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+    9  | 'c' 'g' .  [$end, 'a', 'c', 'g', 'u']
+   10  | . 'g' 'c'
+   10  | 'g' . 'c'
+   11  | . 'g' 'u'
+   11  | 'g' . 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   16  | 'g' . S 'c'
+   17  | . 'g' S 'u'
+   17  | 'g' . S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 11
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 12
+
+    'a'       [reduce using rule 5 (S)]
+    'a'       [reduce using rule 9 (S)]
+    'c'       [reduce using rule 5 (S)]
+    'c'       [reduce using rule 9 (S)]
+    'g'       [reduce using rule 5 (S)]
+    'g'       [reduce using rule 9 (S)]
+    'u'       [reduce using rule 5 (S)]
+    'u'       [reduce using rule 9 (S)]
+    $default  reduce using rule 9 (S)
+
+    S  go to state 13
+
+
+state 10
+
+    2 S: . S S
+    2  | S . S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   15  | 'c' S . 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 20
+    'u'  shift, and go to state 4
+
+    S  go to state 18
+
+
+state 11
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    4  | 'c' .  ['a', 'c', 'g', 'u']
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+    9  | 'c' . 'g'
+   10  | . 'g' 'c'
+   10  | 'g' 'c' .  [$end, 'a', 'c', 'g', 'u']
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   15  | 'c' . S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 9
+    'u'  shift, and go to state 4
+
+    'a'       [reduce using rule 4 (S)]
+    'a'       [reduce using rule 10 (S)]
+    'c'       [reduce using rule 4 (S)]
+    'c'       [reduce using rule 10 (S)]
+    'g'       [reduce using rule 4 (S)]
+    'g'       [reduce using rule 10 (S)]
+    'u'       [reduce using rule 4 (S)]
+    'u'       [reduce using rule 10 (S)]
+    $default  reduce using rule 10 (S)
+
+    S  go to state 10
+
+
+state 12
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    6  | 'u' .  ['a', 'c', 'g', 'u']
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    8  | 'u' . 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   11  | 'g' 'u' .  [$end, 'a', 'c', 'g', 'u']
+   12  | . 'u' 'g'
+   12  | 'u' . 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   14  | 'u' . S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+   18  | 'u' . S 'g'
+
+    'a'  shift, and go to state 14
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 15
+    'u'  shift, and go to state 4
+
+    'a'       [reduce using rule 6 (S)]
+    'a'       [reduce using rule 11 (S)]
+    'c'       [reduce using rule 6 (S)]
+    'c'       [reduce using rule 11 (S)]
+    'g'       [reduce using rule 6 (S)]
+    'g'       [reduce using rule 11 (S)]
+    'u'       [reduce using rule 6 (S)]
+    'u'       [reduce using rule 11 (S)]
+    $default  reduce using rule 11 (S)
+
+    S  go to state 16
+
+
+state 13
+
+    2 S: . S S
+    2  | S . S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   16  | 'g' S . 'c'
+   17  | . 'g' S 'u'
+   17  | 'g' S . 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 21
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 22
+
+    S  go to state 18
+
+
+state 14
+
+    2 S: . S S
+    3  | . 'a'
+    3  | 'a' .  ['a', 'c', 'g', 'u']
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    7  | 'a' . 'u'
+    8  | . 'u' 'a'
+    8  | 'u' 'a' .  [$end, 'a', 'c', 'g', 'u']
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   13  | 'a' . S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 7
+
+    'a'       [reduce using rule 3 (S)]
+    'a'       [reduce using rule 8 (S)]
+    'c'       [reduce using rule 3 (S)]
+    'c'       [reduce using rule 8 (S)]
+    'g'       [reduce using rule 3 (S)]
+    'g'       [reduce using rule 8 (S)]
+    'u'       [reduce using rule 3 (S)]
+    'u'       [reduce using rule 8 (S)]
+    $default  reduce using rule 8 (S)
+
+    S  go to state 8
+
+
+state 15
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    5  | 'g' .  ['a', 'c', 'g', 'u']
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   10  | 'g' . 'c'
+   11  | . 'g' 'u'
+   11  | 'g' . 'u'
+   12  | . 'u' 'g'
+   12  | 'u' 'g' .  [$end, 'a', 'c', 'g', 'u']
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   16  | 'g' . S 'c'
+   17  | . 'g' S 'u'
+   17  | 'g' . S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 11
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 12
+
+    'a'       [reduce using rule 5 (S)]
+    'a'       [reduce using rule 12 (S)]
+    'c'       [reduce using rule 5 (S)]
+    'c'       [reduce using rule 12 (S)]
+    'g'       [reduce using rule 5 (S)]
+    'g'       [reduce using rule 12 (S)]
+    'u'       [reduce using rule 5 (S)]
+    'u'       [reduce using rule 12 (S)]
+    $default  reduce using rule 12 (S)
+
+    S  go to state 13
+
+
+state 16
+
+    2 S: . S S
+    2  | S . S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   14  | 'u' S . 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+   18  | 'u' S . 'g'
+
+    'a'  shift, and go to state 23
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 24
+    'u'  shift, and go to state 4
+
+    S  go to state 18
+
+
+state 17
+
+    0 $accept: S_ $end .
+
+    $default  accept
+
+
+state 18
+
+    2 S: . S S
+    2  | S . S
+    2  | S S .  [$end, 'a', 'c', 'g', 'u']
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 4
+
+    'a'       [reduce using rule 2 (S)]
+    'c'       [reduce using rule 2 (S)]
+    'g'       [reduce using rule 2 (S)]
+    'u'       [reduce using rule 2 (S)]
+    $default  reduce using rule 2 (S)
+
+    S  go to state 18
+
+
+state 19
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    6  | 'u' .  ['a', 'c', 'g', 'u']
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    8  | 'u' . 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   12  | 'u' . 'g'
+   13  | . 'a' S 'u'
+   13  | 'a' S 'u' .  [$end, 'a', 'c', 'g', 'u']
+   14  | . 'u' S 'a'
+   14  | 'u' . S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+   18  | 'u' . S 'g'
+
+    'a'  shift, and go to state 14
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 15
+    'u'  shift, and go to state 4
+
+    'a'       [reduce using rule 6 (S)]
+    'a'       [reduce using rule 13 (S)]
+    'c'       [reduce using rule 6 (S)]
+    'c'       [reduce using rule 13 (S)]
+    'g'       [reduce using rule 6 (S)]
+    'g'       [reduce using rule 13 (S)]
+    'u'       [reduce using rule 6 (S)]
+    'u'       [reduce using rule 13 (S)]
+    $default  reduce using rule 13 (S)
+
+    S  go to state 16
+
+
+state 20
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    5  | 'g' .  ['a', 'c', 'g', 'u']
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   10  | 'g' . 'c'
+   11  | . 'g' 'u'
+   11  | 'g' . 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   15  | 'c' S 'g' .  [$end, 'a', 'c', 'g', 'u']
+   16  | . 'g' S 'c'
+   16  | 'g' . S 'c'
+   17  | . 'g' S 'u'
+   17  | 'g' . S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 11
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 12
+
+    'a'       [reduce using rule 5 (S)]
+    'a'       [reduce using rule 15 (S)]
+    'c'       [reduce using rule 5 (S)]
+    'c'       [reduce using rule 15 (S)]
+    'g'       [reduce using rule 5 (S)]
+    'g'       [reduce using rule 15 (S)]
+    'u'       [reduce using rule 5 (S)]
+    'u'       [reduce using rule 15 (S)]
+    $default  reduce using rule 15 (S)
+
+    S  go to state 13
+
+
+state 21
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    4  | 'c' .  ['a', 'c', 'g', 'u']
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+    9  | 'c' . 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   15  | 'c' . S 'g'
+   16  | . 'g' S 'c'
+   16  | 'g' S 'c' .  [$end, 'a', 'c', 'g', 'u']
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 9
+    'u'  shift, and go to state 4
+
+    'a'       [reduce using rule 4 (S)]
+    'a'       [reduce using rule 16 (S)]
+    'c'       [reduce using rule 4 (S)]
+    'c'       [reduce using rule 16 (S)]
+    'g'       [reduce using rule 4 (S)]
+    'g'       [reduce using rule 16 (S)]
+    'u'       [reduce using rule 4 (S)]
+    'u'       [reduce using rule 16 (S)]
+    $default  reduce using rule 16 (S)
+
+    S  go to state 10
+
+
+state 22
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    6  | 'u' .  ['a', 'c', 'g', 'u']
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    8  | 'u' . 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   12  | 'u' . 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   14  | 'u' . S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   17  | 'g' S 'u' .  [$end, 'a', 'c', 'g', 'u']
+   18  | . 'u' S 'g'
+   18  | 'u' . S 'g'
+
+    'a'  shift, and go to state 14
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 15
+    'u'  shift, and go to state 4
+
+    'a'       [reduce using rule 6 (S)]
+    'a'       [reduce using rule 17 (S)]
+    'c'       [reduce using rule 6 (S)]
+    'c'       [reduce using rule 17 (S)]
+    'g'       [reduce using rule 6 (S)]
+    'g'       [reduce using rule 17 (S)]
+    'u'       [reduce using rule 6 (S)]
+    'u'       [reduce using rule 17 (S)]
+    $default  reduce using rule 17 (S)
+
+    S  go to state 16
+
+
+state 23
+
+    2 S: . S S
+    3  | . 'a'
+    3  | 'a' .  ['a', 'c', 'g', 'u']
+    4  | . 'c'
+    5  | . 'g'
+    6  | . 'u'
+    7  | . 'a' 'u'
+    7  | 'a' . 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   11  | . 'g' 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   13  | 'a' . S 'u'
+   14  | . 'u' S 'a'
+   14  | 'u' S 'a' .  [$end, 'a', 'c', 'g', 'u']
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   17  | . 'g' S 'u'
+   18  | . 'u' S 'g'
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 2
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 7
+
+    'a'       [reduce using rule 3 (S)]
+    'a'       [reduce using rule 14 (S)]
+    'c'       [reduce using rule 3 (S)]
+    'c'       [reduce using rule 14 (S)]
+    'g'       [reduce using rule 3 (S)]
+    'g'       [reduce using rule 14 (S)]
+    'u'       [reduce using rule 3 (S)]
+    'u'       [reduce using rule 14 (S)]
+    $default  reduce using rule 14 (S)
+
+    S  go to state 8
+
+
+state 24
+
+    2 S: . S S
+    3  | . 'a'
+    4  | . 'c'
+    5  | . 'g'
+    5  | 'g' .  ['a', 'c', 'g', 'u']
+    6  | . 'u'
+    7  | . 'a' 'u'
+    8  | . 'u' 'a'
+    9  | . 'c' 'g'
+   10  | . 'g' 'c'
+   10  | 'g' . 'c'
+   11  | . 'g' 'u'
+   11  | 'g' . 'u'
+   12  | . 'u' 'g'
+   13  | . 'a' S 'u'
+   14  | . 'u' S 'a'
+   15  | . 'c' S 'g'
+   16  | . 'g' S 'c'
+   16  | 'g' . S 'c'
+   17  | . 'g' S 'u'
+   17  | 'g' . S 'u'
+   18  | . 'u' S 'g'
+   18  | 'u' S 'g' .  [$end, 'a', 'c', 'g', 'u']
+
+    'a'  shift, and go to state 1
+    'c'  shift, and go to state 11
+    'g'  shift, and go to state 3
+    'u'  shift, and go to state 12
+
+    'a'       [reduce using rule 5 (S)]
+    'a'       [reduce using rule 18 (S)]
+    'c'       [reduce using rule 5 (S)]
+    'c'       [reduce using rule 18 (S)]
+    'g'       [reduce using rule 5 (S)]
+    'g'       [reduce using rule 18 (S)]
+    'u'       [reduce using rule 5 (S)]
+    'u'       [reduce using rule 18 (S)]
+    $default  reduce using rule 18 (S)
+
+    S  go to state 13
