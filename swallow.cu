@@ -1,8 +1,3 @@
-/* changes here
-
-local stack management directive vs cudamalloc every iteration
-
-*/
 
 /* needed compile switches
 	-arch sm_11      // for atomicCAS
@@ -14,6 +9,7 @@ local stack management directive vs cudamalloc every iteration
 #include <stdio.h>
 #include <math.h>
 #include "cuPrintf.cu"
+#include "cuStack.cu"
 /*--------------------------------------.
 | Types and Constants Defintions		|
 `--------------------------------------*/
@@ -39,7 +35,7 @@ local stack management directive vs cudamalloc every iteration
 #else 
   #define OUTPUT_STREAM stdout
 #endif
-#define MY_STACK_MANAGEMENT 0  // use my own stack functions.. the other approach is cudaMalloc all the way.
+#define MY_STACK_MANAGEMENT 1  // use my own stack functions.. the other approach is cudaMalloc all the way.
 #define GRID_PARSE 1  // Uses a 2D grid of blocks instead of 1D
 #define Perform Execute  // !!
 #define MAX_ACTIONS 3 	// max num of actions per state per token
