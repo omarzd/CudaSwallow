@@ -1,167 +1,12 @@
 
-/* needed compile switches
-	-arch sm_11      // for atomicCAS
-	-lcudart
-*/
-
-
 #include <iostream>
 #include <stdio.h>
 #include <math.h>
+#include "basic.cu"
 #include "cuPrintf.cu"
 #include "cuStack.cu"
-/*--------------------------------------.
-| Types and Constants Defintions		|
-`--------------------------------------*/
-#define PRINT_TO_FILE 0
-//#define DEV_DEBUG_ANY 1   // REMEMBER: if there are cuprintfs without #if, don't disable the initialization from here
-#ifndef DEV_DEBUG_ANY
- #define DEV_DEBUG_ANY (DEV_DEBUG_CLEAN||DEV_DEBUG_CRUDE||DEV_DEBUG_STACK||DEV_DEBUG_EXCEPTION)
-#endif
-#ifndef DEV_DEBUG_CLEAN
- #define DEV_DEBUG_CLEAN 0
-#endif
-#ifndef DEV_DEBUG_CRUDE
- #define DEV_DEBUG_CRUDE 1
-#endif
-#ifndef DEV_DEBUG_STACK
- #define DEV_DEBUG_STACK 0
-#endif
-#ifndef DEV_DEBUG_EXCEPTION
- #define DEV_DEBUG_EXCEPTION 1
-#endif
-#if PRINT_TO_FILE
-  #define OUTPUT_STREAM outfile
-#else 
-  #define OUTPUT_STREAM stdout
-#endif
-#define MY_STACK_MANAGEMENT 1  // use my own stack functions.. the other approach is cudaMalloc all the way.
-#define GRID_PARSE 1  // Uses a 2D grid of blocks instead of 1D
-#define Perform Execute  // !!
-#define MAX_ACTIONS 3 	// max num of actions per state per token
-#define MAX_RHS_COUNT 3	// max element in array rhscount
-#define NRULES 19  // Number of Rules including Rule 0. = YYNRULES from bison
-#define ACTION_TABLE_ERROR 0
-#define ACTION_TABLE_ACCEPT 127
-#define MAX_N_STATES 126 // sizeof(***(table))/2	// MAX_N_STATES -- Maximum Number of States supported, 0 and 127 are reserved
-#define STATE_INVALID 255   // (typeof(gotoState)) -1 -->  (byte)(-1) = 255
-#define INITIAL_STATE 0
-#define TERMINAL_STATE 5
-#define NSTATES 24					// NSTATES -- Number of States. = YYNSTATES-1 
-#define NTOKENS  7 					// NTOKENS -- Number of terminals. = YYNTOKENS
-#define NNTERMS  3 					// NNTERMS -- Number of nonterminals. = YYNNTS  
-#define NSYMBOLS NTOKENS+NNTERMS	// NSYMBOLS -- Number of symbols
-#define N_STACK_SEGMENTS 500000 //(long long) 2*exp(1.15 * inputSize) // Maximum Number of Stack Segments needed in any single call to "Parse". This has been decided by statistics.
-#define STACK_SEGMENT_SIZE 	100 // (inputSize + 1) * 2 * sizeof(int) // TODO: revert this
-#define STACK_SEGMENT_UNALLCOATED 0	// assigned initially and when a segment is deallocated.
-#define STACK_SEGMENT_ALLCOATED 1	// assigned when a segment is allocated.
-#define STACK_ID_INVALID -1	// assigned when allocating a segment in the stack fails. also is the default value for initiated sps blocks in case they fail which they mostly do
-#define STACK_FIRST_SEGMENT_ID 0
-#define COPYSTACK_SUCCESS 1
-#define COPYSTACK_FAIL 0
-#define PUSH_SUCCESS 1
-#define PUSH_FAIL 0 
-#define PRINT_BUFFER_SIZE 	100 * 1024
-#define SPS_ERROR 255		// undefined error
-#define SPS_SUCCESS 1		// Successful
-#define SPS_ACCEPT 2		// Input Accepted
-#define SAFETY_PARSE_ERROR -1	    // to distinguish which kernel function caused the error
-#define SAFETY_PREPROCESS_ERROR -2  // to distinguish which kernel function caused the error
-#define RULEINDEX	(ruleNum+1)  // necessary for compatabiliy with bison's arrays.. not used, variable "ruleIndex" is used instead.
-#define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
-
-#if MY_STACK_MANAGEMENT
-#define PARSE_KILLSPS  { outSps[lBlockNum].statusFlag = SPS_ERROR;\
-						 outSps[lBlockNum].stackID = STACK_ID_INVALID;	return;	}	
-#else
-#define PARSE_KILLSPS  { outSps[lBlockNum].statusFlag = SPS_ERROR;\
-						 return;	}	
-#endif
-#define CUPRINT(a,b)   { cudaPrintfInit();\
-	a,b;\
-	HANDLE_ERROR( cudaThreadSynchronize() );\
-	cudaPrintfDisplay(OUTPUT_STREAM, true);\
-	cudaPrintfEnd(); }
-#define ASSERT(a) {if (a == NULL) { \
-                       printf( "ASSERT failed in %s at line %d\n", \
-                                __FILE__, __LINE__ ); \
-                       exit( EXIT_FAILURE );}}
-#define HANDLE_FREE(free,pointer) \
-	do { if(pointer) free(pointer);\
-		 else printf("Trying to Free NULL pointer in %s at line %d\n",\
-					 __FILE__, __LINE__ );}\
-	while(0);
-#define PRINT(a) \
-	do { fprintf(OUTPUT_STREAM, a);}\
-	while(0);
-
-typedef unsigned char byte; 
-typedef unsigned short uint16;
-byte *dev_inputString;
-byte *dev_translatedInputString;
-byte *printingBuffer;
-int maxSuccessCount = 0;   // used to estimate the number of stacks needed for each iteration and print it upon a stack crash.
-int maxSegmentsNeeded = -1; // used to better predict for future runs the number of stacks needed VS. inputSize
-int inputSize = 0;
-int mainIteration=0;
-bool errorCaught=false;
-
-
-struct sps // parse state
-{  
-	byte statusFlag;	// successful = 1, error = 255, accept = 2
-	uint16 currCharIndex;
-	byte stateNum;
-	#if MY_STACK_MANAGEMENT
-	int stackID;	 // ID of stack of unreduced tokens in the chunk
-	#else
-	byte *stackID;    // address of stack
-	byte offset;	 // where at stack
-	#endif
-};
-
-// TODO: hmmm... i need to redesign this
-//This struct's size should be constrained within 4 bytes.
-struct actionHistorySnippet
-{
-	byte blockID;
-	uint16 charIndex;
-	byte actionTaken;
-};
-
-struct stack
-{
-	byte *buffer;	// the whole space: size to be initially allocated, i.e., once in a runtime
-	byte **sp;		// array of stack pointers to every segment
-	byte **lowerLimit; // array of lower limits of all segments
-	byte **upperLimit; // array of upper limits of all segments
-	byte *allocated;// array of flags for each segment. 0= not allocated, 1= allocated
-	int  chunk;		// size of a single segment
-	int  segments;  // num of segments to equally divide into chunks residing in the buffer
-};
-
-struct dynamicArray
-{
-	actionHistorySnippet *buffer;
-	int index;
-	int upperLimit;
-};
-
-struct debugBuffer
-{
-	byte *buffer;
-	unsigned int index;
-	unsigned int upperLimit;
-};
-
-__device__ stack mainStack;
-stack mStack;
-
-__device__ debugBuffer debuggingDevice;
-
-__device__ dynamicArray *actionsTaken;
-dynamicArray mainArray;
-dynamicArray *lActionsTaken;
+#include "cuDynamicArray.cu"
+#include "cudaPrintf.cu"
 
 /*---------------------------.
 |  Important Information.    |
@@ -196,35 +41,6 @@ dynamicArray *lActionsTaken;
 	http://www1.wolframalpha.com/input/?i=curve%20fitting%20&lk=2
 */
 
-/*	List of All mallocs; all these are being freed somewhere in the code
-	By using HANDLE_FREE(function, pointer), you don't have to worry if
-	a particular pointer has been freed before; it handles it. you can
-	simply list all frees at the end of main().
-
-c	cudaMalloc( (void**)&lActionsTaken , sizeof( dynamicArray ) );	
-c	cudaMalloc( (void**)&(mainArray.buffer) , inputSize * inputSize * sizeof(actionHistorySnippet) );
-c	youts = (char *)malloc (fileSize);	 //allocate memory for input string
-c	inputString = (char *)malloc (fileSize);	 //allocate memory for input string
-c	cudaMalloc( (void**)&dev_inputString, inputSize+1 );
-c	cudaMalloc( (void**)&dev_translatedInputString, inputSize+1 ) );
-c	cudaMalloc( (void**)&dev_successCount , sizeof(int) );
-c	cudaMalloc( (void**)&dev_acceptCount , sizeof(int) );
-c	cudaMalloc( (void**)&dev_spsArrIn , sizeof(sps) );
-c	cudaMalloc( (void**)&dev_spsArrOut, sizeof(sps) * N ) );
-c	cudaMalloc( (void**)&printingBuffer , inputSize );
-c	cudaMalloc( (void **)&(mStack.buffer) , chunk * segments );
-c	cudaMalloc( (void **)&(mStack.sp) , segments * sizeof(byte*) );
-c	cudaMalloc( (void **)&(mStack.lowerLimit) , segments * sizeof(byte*) );
-c	cudaMalloc( (void **)&(mStack.upperLimit) , segments * sizeof(byte*) );
-c	cudaMalloc( (void **)&(mStack.allocated) , segments * sizeof(byte) );
-c	cudaMalloc( (void **)&(defaultStack.buffer) , chunk * segments );
-c	cudaMalloc( (void **)&(defaultStack.sp) , segments * sizeof(byte*) );
-c	cudaMalloc( (void **)&(defaultStack.lowerLimit) , segments * sizeof(byte*) );
-c	cudaMalloc( (void **)&(defaultStack.upperLimit) , segments * sizeof(byte*) );
-c	bufferForDebugging = (byte*)calloc( PRINT_BUFFER_SIZE , sizeof(byte) );
-c	snippets = (actionHistorySnippet*)calloc( mainArray.upperLimit , sizeof(actionHistorySnippet) );
-
-*/	
 
 /*
 	What to change if grammar changes:
@@ -250,21 +66,6 @@ in the table if the terminal state is neglected. so all shifts to states
 greater than YYterminalState must decremented by 1
 
 */
-
-	/*
-	// To Print Macro
-	strBuffer[0] = 0;
-	it=0;		
-	lenBuffer = strlen("Worker ID = ");
-	//for(it=0; it<lenBuffer;it++);// ( (byte*)&("Worker ID = ") );	
-	strBuffer[it++] = '0' + ((lBlockNum/1000));
-	strBuffer[it++] = '0' + ((lBlockNum/100) %10);
-	strBuffer[it++] = '0' + ((lBlockNum/10) %10);
-	strBuffer[it++] = '0' + ((lBlockNum/1) %10);
-	strBuffer[it++] = '\n';
-	strBuffer[it++] = '\0';
-	cudaPrintf( (byte*)&strBuffer );
-	*/
 
 
 /*---------------------------.
@@ -401,376 +202,11 @@ __constant__ const byte nra[NSTATES][NSYMBOLS+1] =
 };
 
 
-/*-----------------------------------------------.
-|       Debugging and Printing Facilities        |
-`-----------------------------------------------*/
-__device__ int printingLocked = 0;
-__device__ int queue = 0;
-
-__device__ void cudaPrintf ( byte *buffer )
-{
-	int i = 0;
-
-	while( atomicCAS(&printingLocked, 0, 1) != 0 );
-	
-	if( debuggingDevice.index > debuggingDevice.upperLimit )
-	{
-		while( atomicCAS(&printingLocked, 1, 0) != 1 );
-		return;
-	}
-	
-	while((buffer[i] != 0) && (debuggingDevice.index < debuggingDevice.upperLimit))
-	{
-		debuggingDevice.buffer[debuggingDevice.index++] = buffer[i++];
-	}
-	
-	while( atomicCAS(&printingLocked, 1, 0) != 1 );
-}
-
-__device__ int cudaStrLen ( byte *buffer )
-{
-	int i;
-
-	for(i = 0; buffer[i] != 0; i++);
-	
-	return i;
-}
-
-__device__ int getStrArrayItem ( int index , byte* array , byte delimiter)
-{
-	int count;
-	int i;
-	
-	i = 0;
-	count = -1;
-
-	while(count < index)
-	{
-		if(array[i++] == delimiter)
-			count++;
-	}
-	
-	return i;
-}
-
-__device__ int getStrArrayItem ( int index , byte* array)
-{
-	return getStrArrayItem ( index , array , '\0');
-}
-
-__device__ void cudaPrintf ( byte character )
-{
-	while( atomicCAS(&printingLocked, 0, 1) != 0 );
-	
-	if( debuggingDevice.index > debuggingDevice.upperLimit - (character == 0 ?  0 : 1) )
-	{
-		while( atomicCAS(&printingLocked, 1, 0) != 1 );
-		return;
-	}
-	
-	debuggingDevice.buffer[debuggingDevice.index++] = character;
-
-	while( atomicCAS(&printingLocked, 1, 0) != 1 );
-}
-
-__device__ void cudaPrintf ( const char *string )
-{
-	cudaPrintf( ((byte*)&string) );
-}
-__global__ void initializeDeviceDebugging ( byte *sharedBuffer , unsigned int lInputSize )
-{
-	debuggingDevice.buffer = sharedBuffer;
-	debuggingDevice.index = 0;
-	debuggingDevice.upperLimit = lInputSize;
-}
-
-void initializeDebugging( int lInputSize )
-{
-	cudaMalloc( (void**)&printingBuffer , lInputSize );
-	
-	initializeDeviceDebugging<<<1,1>>>( printingBuffer , lInputSize);
-	cudaThreadSynchronize();
-}
-
-__global__ void closeDeviceDebugging()
-{
-	cudaPrintf( (byte)'\0' );
-}
-
-void closeDebugging()
-{
-	closeDeviceDebugging<<<1,1>>>();
-	cudaThreadSynchronize();
-}
-
-/*---------------------------------------------------.
-|       STACK and Memory Management Functions        |
-`---------------------------------------------------*/
-
-__device__ int stackMainLock = 0;
-
-__device__ void superCudaMemcpy( byte *destination , byte *source , unsigned int len)
-{
-	unsigned int counter;
-	
-	for(counter = 0; counter < len; counter++)
-		destination[counter] = source[counter];
-}
+/*----------------------------.
+| Auxiliary Device Functions  |
+`----------------------------*/
 
 #if MY_STACK_MANAGEMENT
-
-__device__ byte PUSH( int segment , uint16 DATA )
-{
-	// if segment is not in range
-	if( segment < 0 || segment >= mainStack.segments ) return PUSH_FAIL;	
-
-	// precaution for overflow
-	if(mainStack.sp[segment] - mainStack.lowerLimit[segment] < sizeof(DATA))
-		return PUSH_FAIL;
-	
-	//Push a value on the stack for the respectful element.
-	mainStack.sp[segment] = mainStack.sp[segment] - sizeof(DATA);
-	*((uint16*)mainStack.sp[segment]) = DATA;
-	return PUSH_SUCCESS;
-}
-__device__ byte PUSH( int segment , unsigned int DATA )
-{
-	if( segment == STACK_ID_INVALID ) return PUSH_FAIL;	
-	
-	//Push a value on the stack for the respectful element.
-	mainStack.sp[segment] = mainStack.sp[segment] - sizeof(DATA);
-	*((unsigned int*)mainStack.sp[segment]) = DATA;
-	return PUSH_SUCCESS;
-}
-
-__device__ byte PUSH( int segment , byte DATA )
-{
-	// if segment is not in range
-	if( segment < 0 || segment >= mainStack.segments ) return PUSH_FAIL;	
-	
-	//Push a value on the stack for the respectful element.
-	mainStack.sp[segment]--;
-	*(mainStack.sp[segment]) = DATA;
-	return PUSH_SUCCESS;
-}
-
-__device__ byte POP( int segment )
-{
-	//Pop a value from the stack and return it.
-	byte DATA;
-	
-	// if segment is not in range
-	if( segment < 0 || segment >= mainStack.segments ) return 0;	
-	
-	DATA = *(mainStack.sp[segment]);
-	mainStack.sp[segment]++;
-	
-	return DATA;
-}
-
-__device__ unsigned short POPshort( int segment )
-{
-	//Pop a value from the stack and return it.
-	unsigned short DATA;
-	
-	// if segment is not in range
-	if( segment < 0 || segment >= mainStack.segments ) return 0;	
-	
-	DATA = *((unsigned short*)(mainStack.sp[segment]));
-	mainStack.sp[segment] = mainStack.sp[segment] + sizeof(DATA);
-	
-	return DATA;
-}
-
-__device__ unsigned int POPint( int segment )
-{
-	// Pop a value from the stack and return it.
-	unsigned int DATA;
-	
-	// if segment is not in range
-	if( segment < 0 || segment >= mainStack.segments ) return 0;	
-	
-	DATA = *((unsigned int*)mainStack.sp[segment]);
-	mainStack.sp[segment] = mainStack.sp[segment] + sizeof(DATA);
-	
-	return DATA;
-}
-
-__device__ byte PEEK( int segment )
-{
-	// Peek at the top byte of the stack.
-	byte DATA;
-	
-	// if segment is not in range
-	if( segment < 0 || segment >= mainStack.segments ) return 0;	
-	
-	DATA = *(mainStack.sp[segment]);
-	
-	return DATA;
-}
-
-__global__ void initializeDeviceStack( stack mStack )
-{
-	int i;
-	
-	superCudaMemcpy( (byte*)&mainStack , (byte*)&mStack , sizeof(stack) );
-	
-	for(i = 0; i < mainStack.segments ; i++)
-	{
-		mainStack.sp[i] = (byte*)(mainStack.buffer + (mainStack.chunk * (i + 1)));
-		mainStack.lowerLimit[i] = (byte*)(mainStack.buffer + (mainStack.chunk * i));
-		mainStack.upperLimit[i] = (byte*)(mainStack.buffer + (mainStack.chunk * (i + 1)));
-		mainStack.allocated[i] = STACK_SEGMENT_UNALLCOATED;
-	}
-}
-
-__global__ void deinitializeDeviceStack()
-{
-	int i;
-	
-	mainStack.buffer = 0;
-		
-	for(i = 0; i < mainStack.segments ; i++)
-	{
-		mainStack.sp[i] = 0;
-		mainStack.lowerLimit[i] = 0;
-		mainStack.upperLimit[i] = 0;
-		mainStack.allocated[i] = STACK_SEGMENT_UNALLCOATED;
-	}
-}
-
-__device__ int allocateStack()
-{
-	int i = 0;
-	
-	while( atomicCAS(&stackMainLock, 0, 1) != 0 );
-	
-	for(i = 0; i < mainStack.segments; i++)
-	{
-		if(mainStack.allocated[i] == STACK_SEGMENT_UNALLCOATED)
-		{
-			mainStack.allocated[i] = STACK_SEGMENT_ALLCOATED;
-			mainStack.sp[i] = mainStack.upperLimit[i];
-
-			while( atomicCAS(&stackMainLock, 1, 0) != 1 );
-
-
-			return i;
-		}
-	}
-	
-	while( atomicCAS(&stackMainLock, 1, 0) != 1 );
-	#if DEV_DEBUG_STACK
-	cuPrintf("NO STACK SPACE AVAILABLE FOR ME... I WILL DIE !!\n");
-	#endif
-	return STACK_ID_INVALID;
-}
-
-__device__ int allocateStack( int neededID , byte keepData )
-{
-	int i = 0;
-	
-	// if segment is not in range
-	if( neededID < 0 || neededID >= mainStack.segments ) return STACK_ID_INVALID;	
-	
-	for(i = 0; i < mainStack.segments; i++)
-	{
-		if(mainStack.allocated[i] == STACK_SEGMENT_UNALLCOATED)
-		{
-			mainStack.allocated[i] = STACK_SEGMENT_ALLCOATED;
-			if(keepData != 0)
-				mainStack.sp[i] = mainStack.upperLimit[i];
-			return i;
-		}
-	}
-	
-	return STACK_ID_INVALID;
-}
-
-__device__ byte copyStack( int destination , int source )
-{
-	// if segment is not in range
-	if( destination < 0 || destination >= mainStack.segments\
-	 || source      < 0 || source      >= mainStack.segments )\
-	  return COPYSTACK_FAIL;	
-	superCudaMemcpy( (byte*)mainStack.lowerLimit[destination] , (byte*)mainStack.lowerLimit[source] , mainStack.chunk );
-	mainStack.sp[destination] = mainStack.upperLimit[destination] - (mainStack.upperLimit[source] - mainStack.sp[source]);
-	return COPYSTACK_SUCCESS;
-}
-
-__device__ void deallocateStack( int stackID )
-{
-	// if segment is not in range
-	if( stackID < 0 || stackID >= mainStack.segments ) return;	
-	
-	mainStack.allocated[stackID] = STACK_SEGMENT_UNALLCOATED;
-	#if DEV_DEBUG_STACK
-	//cuPrintf("DEALLOCATED ID %d\n", stackID);
-	#endif
-}
-
-void deinitializeStack()
-{
-	if( mStack.buffer != 0 )
-	{
-		HANDLE_FREE( cudaFree, mStack.buffer );
-		HANDLE_FREE( cudaFree, (byte*)mStack.sp );
-		HANDLE_FREE( cudaFree, (byte*)mStack.lowerLimit );
-		HANDLE_FREE( cudaFree, (byte*)mStack.upperLimit );
-		HANDLE_FREE( cudaFree, mStack.allocated );
-	}
-	
-	deinitializeDeviceStack<<<1,1>>>();
-	cudaThreadSynchronize();
-}
-
-void initializeStack( int chunk , int segments )
-{
-// it is necessary to make sure these are freed if we're going to  \
-   call initializeStack more than once in the code
-	if( mStack.buffer != 0 )
-	{
-		HANDLE_FREE( cudaFree, mStack.buffer );
-		HANDLE_FREE( cudaFree, (byte*)mStack.sp );
-		HANDLE_FREE( cudaFree, (byte*)mStack.lowerLimit );
-		HANDLE_FREE( cudaFree, (byte*)mStack.upperLimit );
-		HANDLE_FREE( cudaFree, mStack.allocated );
-	}
-	
-	//Allocate Stack Space
-	cudaMalloc( (void **)&(mStack.buffer) , chunk * segments );
-	cudaMalloc( (void **)&(mStack.sp) , segments * sizeof(byte*) );
-	cudaMalloc( (void **)&(mStack.lowerLimit) , segments * sizeof(byte*) );
-	cudaMalloc( (void **)&(mStack.upperLimit) , segments * sizeof(byte*) );
-	cudaMalloc( (void **)&(mStack.allocated) , segments * sizeof(byte) );
-	mStack.chunk = chunk;
-	mStack.segments = segments;
-	
-	initializeDeviceStack<<<1,1>>>( mStack );
-	cudaThreadSynchronize();
-}
-
-void initializeStack( stack defaultStack , int chunk , int segments )
-{
-	if( defaultStack.buffer != 0 )
-	{
-		HANDLE_FREE( cudaFree, defaultStack.buffer );
-		HANDLE_FREE( cudaFree, (byte*)defaultStack.sp );
-		HANDLE_FREE( cudaFree, (byte*)defaultStack.lowerLimit );
-		HANDLE_FREE( cudaFree, (byte*)defaultStack.upperLimit );
-	}
-	
-	//Allocate Stack Space
-	cudaMalloc( (void **)&(defaultStack.buffer) , chunk * segments );
-	cudaMalloc( (void **)&(defaultStack.sp) , segments * sizeof(byte*) );
-	cudaMalloc( (void **)&(defaultStack.lowerLimit) , segments * sizeof(byte*) );
-	cudaMalloc( (void **)&(defaultStack.upperLimit) , segments * sizeof(byte*) );
-	defaultStack.chunk = chunk;
-	defaultStack.segments = segments;
-	
-	initializeDeviceStack<<<1,1>>>( defaultStack );
-	cudaThreadSynchronize();
-}
 
 __device__ void copyElement( sps *spsArrayByte , unsigned int destination , unsigned int source )
 {
@@ -827,6 +263,28 @@ __global__ void preprocessSpsArr( sps *spsArray , sps* oldArray , int len , int 
 		deallocateStack( oldArray[current].stackID );
 }
 
+__global__ void initializeSPSArray( sps init , sps *array )
+{
+	
+	// these three prints are for debugging the initialization of sps blocks
+	#if DEV_DEBUG_STACK
+	//cuPrintf( "STACK ID %d State %d\n" , array->stackID , array->stateNum );	
+	#endif
+	
+	*array = init;
+	array->stackID = allocateStack();
+
+	#if DEV_DEBUG_STACK
+	//cuPrintf( "STACK ID %d State %d\n" , array->stackID , array->stateNum );	
+	#endif
+	
+	PUSH( array->stackID , (uint16)(array->stateNum) );
+	
+	#if DEV_DEBUG_STACK
+	//cuPrintf( "STACK ID %d State %d\n" , array->stackID , array->stateNum );
+	#endif
+}
+
 #else
 
 __global__ void preprocessSpsArr( sps *spsArray , sps* oldArray , int len , int *sucCount, int *accCount ) 
@@ -871,113 +329,6 @@ __global__ void initializeFirstSPS( sps firstSps, sps *array, byte *p )
 }
 
 #endif
-
-/*-------------------------------------------------------------------------.
-|  Dynamic Array For Parse Tree Stored as History of Actions Taken         |
-`-------------------------------------------------------------------------*/
-
-__global__ void initializeActionsTaken ( dynamicArray *newArray )
-{
-	actionsTaken = newArray;
-}
-
-__global__ void initializeDeviceArray ( dynamicArray mainArray , dynamicArray *destinationArray )
-{
-	superCudaMemcpy( (byte*)destinationArray , (byte*)&mainArray , sizeof(dynamicArray) );
-}
-
-__device__ void addElement ( actionHistorySnippet DATA , dynamicArray *destinationArray )
-{
-	((unsigned int*)destinationArray->buffer)[destinationArray->index++] = *((unsigned int*)&DATA);
-}
-
-__device__ void addActionTaken ( actionHistorySnippet DATA )
-{
-	((unsigned int*)actionsTaken->buffer)[actionsTaken->index++] = *((unsigned int*)&DATA);
-}
-
-void initializeActionsTakenArray( int lInputSize )
-{	
-	cudaMalloc( (void**)&lActionsTaken , sizeof( dynamicArray ) );
-	
-	cudaMalloc( (void**)&(mainArray.buffer) , lInputSize * lInputSize * sizeof(actionHistorySnippet) );
-	mainArray.upperLimit = lInputSize * lInputSize;
-	mainArray.index = 0;
-	
-	initializeDeviceArray<<<1,1>>>( mainArray , lActionsTaken );
-	cudaThreadSynchronize();
-	initializeActionsTaken<<<1,1>>>( lActionsTaken );
-	cudaThreadSynchronize();
-}
-
-#if MY_STACK_MANAGEMENT
-//STUFF
-
-__global__ void initializeSPSArray( sps init , sps *array )
-{
-	
-	// these three prints are for debugging the initialization of sps blocks
-	#if DEV_DEBUG_STACK
-	//cuPrintf( "STACK ID %d State %d\n" , array->stackID , array->stateNum );	
-	#endif
-	
-	*array = init;
-	array->stackID = allocateStack();
-
-	#if DEV_DEBUG_STACK
-	//cuPrintf( "STACK ID %d State %d\n" , array->stackID , array->stateNum );	
-	#endif
-	
-	PUSH( array->stackID , (uint16)(array->stateNum) );
-	
-	#if DEV_DEBUG_STACK
-	//cuPrintf( "STACK ID %d State %d\n" , array->stackID , array->stateNum );
-	#endif
-}
-#endif
-
-/*-------------------------------------.
-|     Testing Stack Implementaion      |
-`-------------------------------------*/
-/*
-__global__ void myStackTesting( byte* buffer )
-{
-	int i;
-	int stackID;
-	
-	stackID = allocateStack();
-	
-	PUSH( stackID , (byte)'3' );
-	PUSH( stackID , (byte)'o' );
-	PUSH( stackID , (byte)'m' );
-	PUSH( stackID , (byte)'a' );
-	PUSH( stackID , (byte)'r' );
-	PUSH( stackID , (byte)'z' );
-	//PUSH( stack , sp , 0 , '\0' );
-	
-	buffer[0] = 0;
-	
-	for(i = 0; i < 6; i++)
-	{
-		buffer[i] = POP( stackID );
-	}
-	
-	buffer[6] = ' ';
-	buffer[7] = 'I';
-	buffer[8] = 'D';
-	buffer[9] = ' ';
-	buffer[10] = '=';
-	buffer[11] = ' ';
-	buffer[12] = stackID + '0';
-	buffer[13] = 0;
-	
-	deallocateStack( stackID );
-}
-*/
-
-/*----------------------------.
-| Auxiliary Device Functions  |
-`----------------------------*/
 
 __global__ void translate( byte *translated, byte *raw )
 {
@@ -1403,8 +754,6 @@ __global__ void parse( byte *translatedInputString, sps *inSps, sps *outSps, byt
 	}
 }
 
-
-
 /*---------------------------.
 | Auxiliary Host Functions.  |
 `---------------------------*/
@@ -1616,7 +965,7 @@ int main(void) {
 	HANDLE_ERROR( cudaMalloc( (void**)&dev_translatedInputString, inputSize+1 ) );
 	dim3 grid(inputSize+1,NTOKENS);
 	translate<<<grid,1>>>( dev_translatedInputString , dev_inputString );
-	HANDLE_ERROR( cudaThreadSynchronize() );
+	HANDLE_ERROR( cudaDeviceSynchronize() );
 
 	//copy translated input string to host just for debugging
 	//HANDLE_ERROR( cudaMemcpy( &translatedInputString, dev_translatedInputString, inputSize+1, cudaMemcpyDeviceToHost ) ); // +1 for the null character
@@ -1639,7 +988,7 @@ int main(void) {
 	initializeStack( 1024 , 100 );
 	cudaMalloc( (void**)&dev_stacktesting, 100 );
 	myStackTesting<<<1,1>>>( dev_stacktesting );
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	cudaMemcpy( testingStack , dev_stacktesting , 100 , cudaMemcpyDeviceToHost ); // +1 for the null character
 	cudaMemcpy( spData , mStack.sp , 100 * sizeof(byte*) , cudaMemcpyDeviceToHost ); // +1 for the null character
 	HANDLE_FREE( cudaFree, dev_stacktesting );
@@ -1674,7 +1023,7 @@ int main(void) {
 	//initialSPS.stackID = dev_inSpsStackSpace;
 	cudaPrintfInit();
 	initializeFirstSPS<<<1,1>>>(initialSPS, dev_spsArrIn, dev_inSpsStackSpace);
-	HANDLE_ERROR( cudaThreadSynchronize() );
+	HANDLE_ERROR( cudaDeviceSynchronize() );
 	cudaPrintfDisplay(OUTPUT_STREAM, true);
 	cudaPrintfEnd();
 	#endif
@@ -1682,7 +1031,7 @@ int main(void) {
 	#if MY_STACK_MANAGEMENT
 	cudaPrintfInit();
 	initializeSPSArray<<<1,1>>>( initialSPS , dev_spsArrIn );
-	HANDLE_ERROR( cudaThreadSynchronize() );
+	HANDLE_ERROR( cudaDeviceSynchronize() );
 	cudaPrintfDisplay(OUTPUT_STREAM, true);
 	cudaPrintfEnd();
 	#endif
@@ -1726,7 +1075,7 @@ int main(void) {
 		#else
 		parse<<<N,1>>>(dev_translatedInputString, dev_spsArrIn, dev_spsArrOut, dev_inSpsStackSpace, dev_outSpsStackSpace, N);
 		#endif		
-		if( HANDLE_ERROR( cudaThreadSynchronize() ) == 1)
+		if( HANDLE_ERROR( cudaDeviceSynchronize() ) == 1)
 			safetyValve = SAFETY_PARSE_ERROR;
 
 		// intiate timer2 just before device starts execution and get timer2 - timer1
@@ -1738,7 +1087,7 @@ int main(void) {
 		// or pre-process the input  of next iteration, put it however you like.
 		// TODO: Parallelize this
 		preprocessSpsArr<<<1,1>>>( dev_spsArrOut , dev_spsArrIn , N , dev_successCount, dev_acceptCount );
-		if( HANDLE_ERROR( cudaThreadSynchronize() ) == 1)
+		if( HANDLE_ERROR( cudaDeviceSynchronize() ) == 1)
 			safetyValve = SAFETY_PREPROCESS_ERROR;
 		
 		// stop timer 2 and get time
