@@ -9,7 +9,8 @@ conflicts, it keeps dividing and dividing indefinitely; and in the end, it
 outputs all possible parse trees. So if you have a name in mind for such 
 parser, please send me your suggestion.
 
-A more detailed report can be found at docs.google.com/document/pub?id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM
+A more detailed report can be found at 
+docs.google.com/document/pub?id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM
 
 
 --------------------------------------------------------------------------------
@@ -32,20 +33,27 @@ compile the kernel with nvcc using the following switches:
 Example: 
 <code> nvcc kernel.cu -w -lcudart -arch sm_11 </code>
 
-There are a number of directives you can play with before compiling.
+There are a number of directives that you can play with before compiling.
 They are located at the beginning of the basic.cu file:
+
 - PRINT_TO_FILE -- self explanatory; when true, output will be saved in 
 	the output file instead of displayed on the screen.
-- DEV_DEBUG_CLEAN -- Minimal information of the parsing process in clear messages. 
+
+- DEV_DEBUG_CLEAN -- Minimal information of the parsing process in clear 
+	messages. 
+
 - DEV_DEBUG_CRUDE -- More parsing info in a not so readable format.
+
 - DEV_DEBUG_STACK -- Detailed info on stack operations
-- DEV_DEBUG_EXCEPTION -- Print out errors and exceptions, mostly memory handling.
-	It is recommended to not compile with any DEV_DEBUG except for 
-	DEV_DEBUG_EXCEPTION if the input is more than 8 characters. The reason is
-	that the print buffer is located on the device which might reduce
-	performance. Unfortunately, the limitations of CUDA do not allow other
-	alternatives for printing debugging information from the device.
-- N_STACK_SEGMENTS -- Read the Troubleshooting section before changing this.
+
+- DEV_DEBUG_EXCEPTION -- Print out errors and exceptions, mostly memory 	
+	handling. 	It is recommended to not compile with any DEV_DEBUG except for 	
+	DEV_DEBUG_EXCEPTION if the input is more than 8 characters. The reason is 	
+	that the print buffer is located on the device which might reduce 	
+	performance. Unfortunately, the limitations of CUDA do not allow other 	
+	alternatives for printing debugging information from the device. - 
+
+N_STACK_SEGMENTS -- Read the Troubleshooting section before changing this.
 
 
 --------------------------------------------------------------------------------
