@@ -13,8 +13,12 @@ conflicts, it keeps dividing and dividing indefinitely; and in the end, it
 outputs all possible parse trees. So if you have a name in mind for such 
 parser, please send me your suggestion.
 
-A more detailed report can be found [here](http://docs.google.com/document/pub?id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM).
+Technical Report
+----------------
 
+Here are download links to a detailed technical report explaining the work from theory to implementation:
+- [Webpage](https://docs.google.com/document/pub?id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM).
+- [PDF](https://docs.google.com/document/export?format=pdf&id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM)
 
 --------------------------------------------------------------------------------
 
@@ -182,5 +186,4 @@ Troubleshooting
 Contact
 =======
 
-For any issues or suggestions, please contact: 3omarz+swallow@gmail.com
-3 Feb 2012
+For any issues or suggestions, please [create a new issue](http://github.com/omarzd/AraRooter/issues/new).
