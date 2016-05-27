@@ -1,6 +1,8 @@
 What is CudaSwallow
 ===================
 
+CudaSwallow is a CUDA parallel parser for nondeterministic grammars based on a Bison-generated GLR Parser.
+
 This is a very simple implementation of a GLR-like parser that works on a 
 specific type of input using a specific grammar. I say "GLR-like" because I 
 still haven't found a suitable name for it. It is not quite GLR. GLR divides 
