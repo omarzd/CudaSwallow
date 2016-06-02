@@ -1,3 +1,5 @@
+See [LICENSE](LICENSE) for licensing information.
+
 What is CudaSwallow
 ===================
 
@@ -29,7 +31,7 @@ Requirements
 - A Nvidia Graphics Chipset with at least 16 CUDA Cores and 256 MB of memory.
 - Nvidia Developer Driver 275 or higher.
 - Cuda Toolkit 3.2 or higher.
-- cuPrintf Library 2 files: "cuPrintf.cuh" and "cuPrintf.cu"
+- `cuPrintf` Library: two files, [`cuPrintf.cuh`](cuPrintf.cuh) and [`cuPrintf.cu`](cuPrintf.cu).
 
 --------------------------------------------------------------------------------
 
