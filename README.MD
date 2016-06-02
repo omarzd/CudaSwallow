@@ -3,7 +3,7 @@ See [LICENSE](LICENSE) for licensing information.
 What is CudaSwallow
 ===================
 
-CudaSwallow is a CUDA parallel parser for nondeterministic grammars based on a Bison-generated GLR Parser.
+CudaSwallow is a CUDA&reg; parallel parser for nondeterministic grammars based on a Bison-generated GLR Parser.
 
 This is a very simple implementation of a GLR-like parser that works on a 
 specific type of input using a specific grammar. I say "GLR-like" because I 
@@ -29,8 +29,8 @@ Requirements
 
 - Any Linux distro with kernel 2.5 or higher.
 - A Nvidia Graphics Chipset with at least 16 CUDA Cores and 256 MB of memory.
-- Nvidia Developer Driver 275 or higher.
-- Cuda Toolkit 3.2 or higher.
+- [Cuda Toolkit](https://developer.nvidia.com/cuda-toolkit) 3.2 or higher.
+- Nvidia Developer Driver 275 or higher (already included in recent versions of [Cuda Toolkit](https://developer.nvidia.com/cuda-toolkit).
 - `cuPrintf` Library: two files, [`cuPrintf.cuh`](cuPrintf.cuh) and [`cuPrintf.cu`](cuPrintf.cu).
 
 --------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ Files
 [`swallow.cu`](swallow.cu)
 --------------------------
 [`swallow.cu`](swallow.cu) is the first file with which this project started.
-It contains *ALL* the code written for this project. Later, 
+It contained *ALL* the code written for this project. Later, 
 for the sake of just a little bit of modularity, I divided it into: 
 [`kernel.cu`](kernel.cu), 
 [`basic.cu`](basic.cu), 
@@ -150,8 +150,8 @@ This being the file with all the defintions, [`swallow.cu`](swallow.cu) needs no
 be updated anymore. I did this to make it easier to later replace 
 these simple implementations of stack, dynamic array, and 
 print--that were written in a hustle--with better more stable 
-classes written for cuda. `cudaPrintf` has already been replaced by 
-the two `cuPrintf` files from NVIDIA. The Dynamic array can be replaced by Thrust
+classes written for cuda. For example, [`cudaPrintf.cu`](cudaPrintf.cu) has already been replaced by 
+the two `cuPrintf` files from NVIDIA; and the Dynamic array can be replaced by Thrust
 or Hydrazine's vector classes. 
 
 [`kernel.cu`](kernel.cu)
