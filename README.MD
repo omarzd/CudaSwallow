@@ -1,7 +1,7 @@
 See [LICENSE](LICENSE) for licensing information.
 
-What is CudaSwallow
-===================
+CudaSwallow
+===========
 
 CudaSwallow is a CUDA&reg; parallel parser for nondeterministic grammars based on a Bison-generated GLR Parser.
 
