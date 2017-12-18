@@ -19,8 +19,8 @@ Technical Report
 ----------------
 
 Here are download links to a detailed technical report explaining the work from theory to implementation:
-- [Webpage](https://docs.google.com/document/pub?id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM).
-- [PDF](https://docs.google.com/document/export?format=pdf&id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM)
+- [HTML](https://docs.google.com/document/pub?id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM).
+- [PDF](https://docs.google.com/document/export?format=pdf&id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM).
 
 --------------------------------------------------------------------------------
 
