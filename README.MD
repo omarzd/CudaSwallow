@@ -38,7 +38,7 @@ Requirements
 Compilation
 ===========
 
-compile the kernel with nvcc using the following switches:
+Compile the kernel with `nvcc` using the following switches:
 - `-w` : to supress naive warnings
 - `-lcudart` : to link with the famous library
 - `-arch sm_11` : necessary for atomic locks
@@ -49,7 +49,7 @@ Example:
 There are a number of directives that you can play with before compiling.
 They are located at the beginning of the `basic.cu` file:
 
-- `PRINT_TO_FILE` -- self explanatory; when true, output will be saved in 
+- `PRINT_TO_FILE` -- Self-explanatory; when true, output will be saved in 
 	the output file instead of displayed on the screen.
 
 - `DEV_DEBUG_CLEAN` -- Minimal information of the parsing process in clear messages. 
@@ -59,8 +59,8 @@ They are located at the beginning of the `basic.cu` file:
 - `DEV_DEBUG_STACK` -- Detailed info on stack operations.
 
 - `DEV_DEBUG_EXCEPTION` -- Print out errors and exceptions, mostly memory 	
-	handling. 	It is recommended to not compile with any DEV_DEBUG except for 	
-	DEV_DEBUG_EXCEPTION if the input is more than 8 characters. The reason is 	
+	handling. It is recommended to set all `DEV_DEBUG` flags to `false`, except for 	
+	`DEV_DEBUG_EXCEPTION`, if the input is more than 8 characters long. The reason is 	
 	that the print buffer is located on the device which might reduce 	
 	performance. Unfortunately, the limitations of CUDA do not allow other 	
 	alternatives for printing debugging information from the device.
@@ -96,7 +96,7 @@ The 'Iteration Summary' includes:
 		 Harakiri thereby honoring the whole run.
 - Successful: Number of cudaBlocks that have taken a Shift or Reduce actions.
 - Accepted:   Number of cudaBlocks that have taken an Accept action.
-- Exec Time:  of the Parse() and Preprocess() functions that run on the device.
+- Exec Time:  of the `Parse()` and `Preprocess()` functions that run on the device.
 - Total Device Exec Time: is a cummulative device execution time. 
 
 Following is a legend of all keywords and uncommon abbreviations used 
@@ -188,4 +188,4 @@ Troubleshooting
 Contact
 =======
 
-For any issues or suggestions, please [create a new issue](http://github.com/omarzd/AraRooter/issues/new).
+For any issues or suggestions, please [create a new issue](http://github.com/omarzd/CudaSwallow/issues/new).
