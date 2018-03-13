@@ -132,9 +132,9 @@ being checked in the code and taken care of.
 Files
 =====
 
-[`swallow.cu`](swallow.cu)
+`swallow.cu`
 --------------------------
-[`swallow.cu`](swallow.cu) is the first file with which this project started.
+`swallow.cu` is the first file with which this project started.
 It contained *ALL* the code written for this project. Later, 
 for the sake of just a little bit of modularity, I divided it into: 
 [`kernel.cu`](kernel.cu), 
