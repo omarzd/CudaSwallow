@@ -22,6 +22,11 @@ Here are download links to a detailed technical report explaining the work from 
 - [HTML](https://docs.google.com/document/pub?id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM).
 - [PDF](https://docs.google.com/document/export?format=pdf&id=1iHpUBOPMwvJrWQHLHhUPHmU2t5KVieq25KItU-UbMpM).
 
+Acknowledgement
+---------------
+
+Credit is due to my friend and colleague Khalid Al-Hawaj who helped me greatly in building the infrastructure of this program.
+
 --------------------------------------------------------------------------------
 
 Requirements
@@ -142,7 +147,7 @@ for the sake of just a little bit of modularity, I divided it into:
 [`cudaPrintf.cu`](cudaPrintf.cu), 
 [`cuStack.cu`](cuStack.cu), and 
 [`cuDynamicArray.cu`](cuDynamicArray.cu). 
-Every one of them depends on [`basic.cu`](basic.cu).
+They all depend on [`basic.cu`](basic.cu).
 
 [`basic.cu`](basic.cu)
 ----------------------
